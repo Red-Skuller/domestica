@@ -35,7 +35,7 @@ def main():
     parser.add_argument("--do-not-append_vector_name", action="store_true",
                         help="do not append vector name to the gene name.")
 
-    parser.add_argument("--do-not-skip-gb-files", action="store_true",
+    parser.add_argument("--skip-gb-files", action="store_true",
                         help="do not write *.gb files for each sequence at the end of the optimization.")
     parser.add_argument("--log", action="store_true",
                         help="Write *.log files for each sequence at the end of the optimization.")
