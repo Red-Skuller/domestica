@@ -32,6 +32,13 @@ def main():
                         help="Write translated_proteins.param file at the end of the optimization.")
     parser.add_argument("--skip_order_file", action="store_true",
                         help="do not write order.dna.fasta file at the end of the optimization.")
+    parser.add_argument("--do_not_append_vector_name", action="store_true",
+                        help="do not append vector name to the gene name.")
+
+    parser.add_argument("--skip_gb_files", action="store_true",
+                        help="do not write *.gb files for each sequence at the end of the optimization.")
+    parser.add_argument("--skip_log_files", action="store_true",
+                        help="do not write *.log files for each sequence at the end of the optimization.")
 
     parser.add_argument('--version', action='version', version='%(prog)s alpha 1.0')
 

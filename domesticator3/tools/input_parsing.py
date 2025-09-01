@@ -269,7 +269,7 @@ def replace_sequence_in_record(record, location, insert) -> SeqRecord.SeqRecord:
 
 
 def make_naive_vector_records(
-        base_vector_record, protein_filepaths, increasing_chain_fasta=False, append_vector_name=False
+        base_vector_record, protein_filepaths, increasing_chain_fasta=False, do_not_append_vector_name=False
 ) -> list:
     """returns a list of Biopython SeqRecord.SeqRecords which have randomly reverse-translated inserts in the base_vector_record
 
@@ -290,7 +290,7 @@ def make_naive_vector_records(
                 )
                 vec_name = intermediate_vector_record.name
                 insert_name = insert.name
-                if append_vector_name:
+                if not do_not_append_vector_name:
                     intermediate_vector_record.name = f"{insert_name}__{vec_name}"
                 else:
                     intermediate_vector_record.name = f"{insert_name}"
@@ -309,7 +309,7 @@ def make_naive_vector_records(
 
             vec_name = intermediate_vector_record.name
             insert_name = insert.name[:-2]  # cuts off _A or whatever chain ID it is
-            if append_vector_name:
+            if not do_not_append_vector_name:
                 intermediate_vector_record.name = f"{insert_name}__{vec_name}"
             else:
                 intermediate_vector_record.name = f"{insert_name}"
