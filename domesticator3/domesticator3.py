@@ -28,17 +28,17 @@ def main():
                         help="bypass the gene optimization step. Useful for debugging new vectors")
     parser.add_argument("--ramp-kmers-boost", type=float, default=0,
                         help="increase the boost of the kmers objective after each failed optimization. Default: %(default)f")
-    parser.add_argument("--param_file", action="store_true",
-                        help="Write translated_proteins.param file at the end of the optimization.")
-    parser.add_argument("--skip_order_file", action="store_true",
+    parser.add_argument("--param-file", action="store_true",
+                        help="Write translated-proteins.param file at the end of the optimization.")
+    parser.add_argument("--skip-order-file", action="store_true",
                         help="do not write order.dna.fasta file at the end of the optimization.")
-    parser.add_argument("--do_not_append_vector_name", action="store_true",
+    parser.add_argument("--do-not-append_vector_name", action="store_true",
                         help="do not append vector name to the gene name.")
 
-    parser.add_argument("--skip_gb_files", action="store_true",
+    parser.add_argument("--do-not-skip-gb-files", action="store_true",
                         help="do not write *.gb files for each sequence at the end of the optimization.")
-    parser.add_argument("--skip_log_files", action="store_true",
-                        help="do not write *.log files for each sequence at the end of the optimization.")
+    parser.add_argument("--log", action="store_true",
+                        help="Write *.log files for each sequence at the end of the optimization.")
 
     parser.add_argument('--version', action='version', version='%(prog)s alpha 1.0')
 
