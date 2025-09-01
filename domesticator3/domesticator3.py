@@ -37,7 +37,7 @@ def main():
 
     parser.add_argument("--skip-gb-files", action="store_true",
                         help="do not write *.gb files for each sequence at the end of the optimization.")
-    parser.add_argument("--log", action="store_true",
+    parser.add_argument("--log", "-l", action="store_true",
                         help="Write *.log files for each sequence at the end of the optimization.")
 
     parser.add_argument('--version', action='version', version='%(prog)s alpha 1.0')
@@ -47,6 +47,7 @@ def main():
     ###### finish imports ######
     # Standard library imports
     import copy
+    import os
 
     # Third party imports
     from dnachisel import DnaOptimizationProblem, NoSolutionError
@@ -67,9 +68,12 @@ def main():
         user_info_file = idt.use_dir(args.idt_credentials_dir)
         idt_user_info = idt.get_user_info(user_info_file)
 
-    base_vector_record = input_parsing.load_vector_record(args.vector)
-    naive_vector_records = input_parsing.make_naive_vector_records(base_vector_record, args.proteins,
-                                                                   args.single_protein_fasta)
+    if os.path.splitext(args.proteins[-1])[1] == ".gb":
+        naive_vector_records = input_parsing.load_gb_as_naive(args.proteins)
+    else:
+        base_vector_record = input_parsing.load_vector_record(args.vector)
+        naive_vector_records = input_parsing.make_naive_vector_records(base_vector_record, args.proteins,
+                                                                       args.single_protein_fasta)
 
     ###### optimize ######
     records_to_synthesize = []
@@ -174,7 +178,7 @@ def main():
 
         records_to_synthesize.append(record_to_synthesize)
 
-        if not args.skip_gb_files:
+        if args.log:
             with open(optimized_vector_record.name + ".log", 'w') as f:
                 f.write(optimized_vector_solution.constraints_text_summary() + "\n")
                 f.write(optimized_vector_solution.objectives_text_summary() + "\n")

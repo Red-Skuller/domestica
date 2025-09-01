@@ -1,6 +1,6 @@
 import copy
 import os
-from typing import Generator
+from typing import Generator, List
 import warnings
 
 from Bio import SeqRecord, SeqIO, BiopythonParserWarning
@@ -11,7 +11,7 @@ from Bio.SeqFeature import FeatureLocation, SeqFeature
 from dnachisel import reverse_translate
 
 
-def load_vector_record(vector_filepath) -> SeqRecord.SeqRecord:
+def load_vector_record(vector_filepath: str) -> SeqRecord.SeqRecord:
     """Return Biopython SeqRecord.SeqRecords
 
     Essentially a wrapper around Biopython SeqIO machinery to read a single vector file
@@ -28,6 +28,11 @@ def load_vector_record(vector_filepath) -> SeqRecord.SeqRecord:
 
     return record
 
+def load_gb_as_naive(filepaths: List[str]) -> list:
+    records = []
+    for filepath in filepaths:
+        records.append(SeqIO.read(filepath, "genbank"))
+    return records
 
 def load_insert_seq(sequence) -> SeqRecord.SeqRecord:
     """returns Biopython SeqRecord.SeqRecord
