@@ -68,42 +68,49 @@ def run_pipeline(
                 candidate_solutions = []
                 for n in range(nstruct):
                     logging.info(f"Generating optimized structure {n + 1}/{nstruct} for {record_id}")
-                    optimized_vector_solution = codon_opt.optimize_naive_record(naive_record)
-                    optimized_vector_record = optimized_vector_solution.to_record()
-                    fragment_to_synthesize = None
-                    for feature in optimized_vector_record.features:
-                        # Extract exact sub-fragment to order if tagged by domesticator flag
-                        if feature.type == "domesticator" and feature.qualifiers.get('label') == ["synthesize"]:
-                            fragment_to_synthesize = feature.extract(optimized_vector_record.seq)
-                            break
+                    try:
+                        optimized_vector_solution = codon_opt.optimize_naive_record(naive_record)
+                        optimized_vector_record = optimized_vector_solution.to_record()
+                        fragment_to_synthesize = None
+                        for feature in optimized_vector_record.features:
+                            # Extract exact sub-fragment to order if tagged by domesticator flag
+                            if feature.type == "domesticator" and feature.qualifiers.get('label') == ["synthesize"]:
+                                fragment_to_synthesize = feature.extract(optimized_vector_record.seq)
+                                break
 
-                    # Fallback in case the vector lacks a domesticator tag
-                    if fragment_to_synthesize is None:
-                        fragment_to_synthesize = optimized_vector_record.seq
-                        logging.warning(
-                            f"No 'synthesize' feature found in vector. Outputting full vector sequence for {record_id}.")
-                    sequence_str = str(fragment_to_synthesize)
+                        # Fallback in case the vector lacks a domesticator tag
+                        if fragment_to_synthesize is None:
+                            fragment_to_synthesize = optimized_vector_record.seq
+                            logging.warning(
+                                f"No 'synthesize' feature found in vector. Outputting full vector sequence for {record_id}.")
+                        sequence_str = str(fragment_to_synthesize)
 
-                    # IDT Complexity Check
-                    if not skip_idt:
-                        try:
-                            eval_score, issues = idt.get_complexity_score(sequence_str, idt_user_info, kind=idt_type)
+                        # IDT Complexity Check
+                        if not skip_idt:
+                            try:
+                                eval_score, issues = idt.get_complexity_score(sequence_str, idt_user_info, kind=idt_type)
 
-                            print(f"SOLUTION {n + 1}:")
-                            for issue in issues:
-                                print(f"{issue['Score']} {issue['Name']}")
-                            print(f"Total Score: {eval_score}")
-                        except Exception as e:
-                            logging.error(f"Failed to query IDT complexity: {e}")
-                        if eval_score < idt_threshold:
-                            candidate_solutions.append({"seq": sequence_str, "score": eval_score})
-                            break
-                    else:
-                        # Use dnachisel's internal objective evaluation score
-                        eval_score = optimized_vector_solution.objectives_evaluations().scores_sum()
+                                print(f"SOLUTION {n + 1}:")
+                                for issue in issues:
+                                    print(f"{issue['Score']} {issue['Name']}")
+                                print(f"Total Score: {eval_score}")
+                            except Exception as e:
+                                logging.error(f"Failed to query IDT complexity: {e}")
+                            if eval_score < idt_threshold:
+                                candidate_solutions.append({"seq": sequence_str, "score": eval_score})
+                                break
+                        else:
+                            # Use dnachisel's internal objective evaluation score
+                            eval_score = optimized_vector_solution.objectives_evaluations().scores_sum()
 
-                    candidate_solutions.append({"seq": sequence_str, "score": eval_score})
-
+                        candidate_solutions.append({"seq": sequence_str, "score": eval_score})
+                    except NoSolutionError:
+                        # Only skip THIS iteration, not the whole protein
+                        logging.warning(f"No valid codon optimization solution found on attempt {n + 1}/{nstruct}.")
+                        continue
+                    except Exception as e:
+                        logging.error(f"Optimization attempt {n + 1}/{nstruct} failed: {e}")
+                        continue
                 if candidate_solutions:
                     best_solution = min(candidate_solutions, key=lambda x: x["score"])
                     row_data["DNA_Seq"] = best_solution["seq"]
@@ -117,8 +124,6 @@ def run_pipeline(
                         row_data["Dnachisel_Score"] = best_solution["score"]
                         logging.info(
                             f"Best structure for {record_id} selected with Dnachisel Score: {best_solution['score']}")
-            except NoSolutionError:
-                logging.error(f"No valid codon optimization solution found for {record_id}.")
             except Exception as e:
                 logging.error(f"Codon optimization failed for {record_id}: {e}")
 
