@@ -281,6 +281,16 @@ def query_complexity(seq, user_info, verbose: bool = False, kind: str = 'gene', 
     return response_dict
 
 
+def get_complexity_score(seq, user_info, verbose: bool = False, kind: str = 'gene', gene_name=None):
+    """
+    Queries IDT complexity and returns the total score alongside the parsed issues.
+    """
+    response = query_complexity(seq, user_info, verbose, kind, gene_name)
+    issues = response[0] if response and isinstance(response, list) else []
+
+    total_score = sum(issue.get("Score", 0) for issue in issues)
+    return total_score, issues
+
 if __name__ == "__main__":
     import argparse
     from Bio import SeqIO
@@ -301,13 +311,7 @@ if __name__ == "__main__":
 
     for record in SeqIO.parse(args.fasta, "fasta"):
         response = query_complexity(record.seq, idt_user_info, kind=args.kind, gene_name=record.id)[0]
-        score = 0
-        if len(response) == 0:
-            score = 0
-        else:
-            for issue in response:
-                score += issue["Score"]
-
+        score, issues = get_complexity_score(record.seq, idt_user_info, kind=args.kind, gene_name=record.id)
         print(record.id, record.seq, score)
 
 """

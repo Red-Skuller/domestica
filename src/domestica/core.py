@@ -87,12 +87,11 @@ def run_pipeline(
                     # IDT Complexity Check
                     if not skip_idt:
                         try:
-                            response = idt.query_complexity(sequence_str, idt_user_info, kind=idt_type )
-                            eval_score = 0
+                            eval_score, issues = idt.get_complexity_score(sequence_str, idt_user_info, kind=idt_type)
+
                             print(f"SOLUTION {n + 1}:")
-                            for issue in response[0]:
-                                print(issue["Score"], issue["Name"])
-                                eval_score += issue["Score"]
+                            for issue in issues:
+                                print(f"{issue['Score']} {issue['Name']}")
                             print(f"Total Score: {eval_score}")
                         except Exception as e:
                             logging.error(f"Failed to query IDT complexity: {e}")

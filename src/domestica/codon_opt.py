@@ -56,7 +56,7 @@ def optimize_single(
         max_tries=10,
         species="e_coli",
 ):
-    idt.user_info_file, idt.token_file = idt.use_dir("~/.idt_credentials")
+    user_info_file= idt.use_dir("~/.idt_credentials")
     idt_user_info = idt.get_user_info(idt.user_info_file)
 
     # doing this mostly
@@ -173,11 +173,9 @@ def optimize_single(
         idt_token = idt.get_token(idt.token_file, idt_user_info)
         response = idt.query_complexity(seq, idt_token["access_token"])
 
-        score_sum = 0
-        for issue in response[0]:
-            score_sum += issue["Score"]
+        score_sum, issues = idt.get_complexity_score(seq, idt_user_info)
 
-        idt_scores.append((score_sum, response[0]))
+        idt_scores.append((score_sum, issues))
         if score_sum < idt_threshold:
             solution_found = True
             break
