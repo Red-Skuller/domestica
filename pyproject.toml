@@ -1,7 +1,7 @@
 [project]
-name = "domesticator3"
+name = "domestica"
 version = "0.1.0"
-description = "CLI tool to generate and optimize codon usage if inserts"
+description = "CLI tool to generate and optimize codon usage of inserts"
 license = "MIT"
 authors = [
     {name = "lukah",email = "lh7128@student.uni-lj.si"}
@@ -35,8 +35,14 @@ dependencies = [
 
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
-[tool.poetry.scripts]
-domesticator = "domesticator3.__main__:main"
+[project.scripts]
+domesticator = "domesticator3.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"domestica.specifications" = ["*.gb"]
