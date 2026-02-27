@@ -50,9 +50,14 @@ def build_parser() -> argparse.ArgumentParser:
 
 
     # Optional DNA optimization and IDT arguments
+    parser.add_argument("--idt_credentials_dir", type=str, default="~/.idt_credentials",
+                        help="A path to the place to search for you stored IDT API credentials. If no info.json file is found, then you will be prompted to enter new ones and they will be stored there")
     parser.add_argument("-v", "--vector", type=Path, help="Genbank vector file for insertion")
     parser.add_argument("--skip-idt", action="store_true", help="Skip IDT complexity checking API calls")
-
+    parser.add_argument('--idt_type', type=str, help='type of sequence to query', default='gene',
+                        choices=['gene', 'gblock', 'gblock_hifi', 'eblock', 'old'])
+    parser.add_argument("--idt_threshold", type=float, default=7,
+                        help="automatically accept the first solution with IDT score under this threshold")
     # Utilities
     parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
 
@@ -82,6 +87,9 @@ def main():
         ph=args.ph,
         name_col=args.name_col,
         seq_col=args.seq_col,
+        idt_type=args.idt_type,
+        idt_credentials_dir=args.idt_credentials_dir,
+        idt_threshold=args.idt_threshold,
         n_tag=args.n_tag,
         c_tag=args.c_tag
     )

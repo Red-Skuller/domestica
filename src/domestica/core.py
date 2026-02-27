@@ -22,9 +22,16 @@ def run_pipeline(
         ph: float,
         name_col: str,
         seq_col: str,
+        idt_type: str,
+        idt_credentials_dir: str,
+        idt_threshold: float,
         n_tag: str = "",
         c_tag: str = ""
 ):
+    if not skip_idt:
+        user_info_file = idt.use_dir(idt_credentials_dir)
+        idt_user_info = idt.get_user_info(user_info_file)
+
     logging.info(f"Reading input from {input_path}...")
     records = io_utils.read_input(input_path, name_col, seq_col)
 
@@ -80,10 +87,18 @@ def run_pipeline(
                     # IDT Complexity Check
                     if not skip_idt:
                         try:
-                            eval_score = idt.query_complexity(sequence_str)
-                            row_data[f"IDT_Score_{n + 1}"] = idt_score
+                            response = idt.query_complexity(sequence_str, idt_user_info, kind=idt_type )
+                            eval_score = 0
+                            print(f"SOLUTION {n + 1}:")
+                            for issue in response[0]:
+                                print(issue["Score"], issue["Name"])
+                                eval_score += issue["Score"]
+                            print(f"Total Score: {eval_score}")
                         except Exception as e:
                             logging.error(f"Failed to query IDT complexity: {e}")
+                        if eval_score < idt_threshold:
+                            candidate_solutions.append({"seq": sequence_str, "score": eval_score})
+                            break
                     else:
                         # Use dnachisel's internal objective evaluation score
                         eval_score = optimized_vector_solution.objectives_evaluations().scores_sum()
