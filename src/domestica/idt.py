@@ -3,23 +3,19 @@ from pathlib import Path
 import time
 import json
 import requests
-import base64
 import argparse
-import datetime
 
 from base64 import b64encode
-import json
 from urllib import request, parse
 
-def vprint(str, verbose: bool = False, **kwargs):
+def vprint(message: str, verbose: bool = False, **kwargs) -> None:
     if verbose:
-        print(str, **kwargs)
+        print(message, **kwargs)
 
 
-def use_dir(dir):
-    user_info_file = os.path.expanduser(os.path.join(dir, "info.json"))
-    # token_file = os.path.expanduser(os.path.join(dir, "token.json"))
-    return user_info_file  # , token_file
+def use_dir(directory: str | Path) -> Path:
+    user_info_file = Path(directory).expanduser() / "info.json"
+    return user_info_file
 
 
 def ask_for_user_data(user_info_file):

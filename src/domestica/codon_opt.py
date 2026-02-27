@@ -49,13 +49,13 @@ def optimize_naive_record(record: SeqRecord, max_tries: int = 10 ):
 
 
 def optimize_single(
-        amino_acid_sequence,
-        kmers_weight=20,
-        cai_weight=1.0,
-        hairpins_weight=1.0,
-        max_tries=10,
-        species="e_coli",
-):
+        amino_acid_sequence: str,
+        kmers_weight: float = 20.0,
+        cai_weight: float = 1.0,
+        hairpins_weight: float = 1.0,
+        max_tries: int = 10,
+        species: str = "e_coli",
+) -> tuple[str, list]:
     user_info_file= idt.use_dir("~/.idt_credentials")
     idt_user_info = idt.get_user_info(idt.user_info_file)
 
