@@ -26,7 +26,8 @@ def run_pipeline(
         idt_credentials_dir: str,
         idt_threshold: float,
         n_tag: str = "",
-        c_tag: str = ""
+        c_tag: str = "",
+        out_cols: Optional[list[str]] = None
 ):
     if not skip_idt:
         user_info_file = idt.use_dir(idt_credentials_dir)
@@ -41,8 +42,14 @@ def run_pipeline(
         record_id = record["id"]
         protein_seq = record["sequence"]
         logging.info(f"Processing: {record_id}")
-
-        row_data = {"Name": record_id, "AA_Seq": protein_seq}
+        # Pre-populate row data with the new variables to support dynamic column selection
+        row_data = {
+            "Name": record_id,
+            "AA_seq": protein_seq,
+            "N_tag": n_tag,
+            "C_tag": c_tag,
+            "insert_name": Path(vector_path).name,
+        }
 
         # 1. Protein Parameters
         if params:
@@ -54,7 +61,7 @@ def run_pipeline(
             )
             row_data.update(calculated_metrics)
             if n_tag or c_tag:
-                row_data["AA_Seq_Analyzed"] = analyzed_seq
+                row_data["AA_Seq_Final"] = analyzed_seq
 
         # 2. Codon Optimization
         if optimize:
@@ -132,5 +139,9 @@ def run_pipeline(
     # 3. Write Output
     logging.info(f"Writing {len(results)} records to {output_path}...")
     df = pd.DataFrame(results)
+    if out_cols:
+        # Reindexing strictly forces the list order and adds requested columns
+        # (fills with NaN if they didn't exist in results)
+        df = df.reindex(columns=out_cols)
     df.to_excel(output_path, index=False)
     logging.info("Pipeline completed successfully!")

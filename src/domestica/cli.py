@@ -48,6 +48,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--c-tag", type=str, default="",
                         help="Amino acid sequence to append to the C-terminus (used for analysis ONLY)")
 
+    parser.add_argument("--out-cols", nargs="+", default=None,
+                        help="Specify the exact order and selection of output columns (e.g., Name AA_Seq N_tag Final_AA_seq final_DNA_seq mw pi).")
 
     # Optional DNA optimization and IDT arguments
     parser.add_argument("--idt_credentials_dir", type=str, default="~/.idt_credentials",
@@ -91,7 +93,8 @@ def main():
         idt_credentials_dir=args.idt_credentials_dir,
         idt_threshold=args.idt_threshold,
         n_tag=args.n_tag,
-        c_tag=args.c_tag
+        c_tag=args.c_tag,
+        out_cols=args.out_cols
     )
 
 
